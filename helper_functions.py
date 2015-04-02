@@ -3,13 +3,14 @@ import time
 import os
 import yaml
 
-def create_dir(name):
+def create_dir(name, parent = "."):
     if not name:
         name = str(int(time.time()))
-    if os.path.exists(name):
+    dir_path = os.path.join(parent, name)
+    if os.path.exists(dir_path):
         return None, "Snapshot exists"
     else:
-        os.makedirs(name)
+        os.makedirs(dir_path)
         return name, None
 
 def parse_config(file_name):

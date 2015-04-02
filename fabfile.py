@@ -5,7 +5,7 @@ CONF_FILE = "conf.yml"
 
 def take_snapshot(name = None):
     conf = h.parse_config(CONF_FILE)
-    dir_name, err = h.create_dir(name)
+    dir_name, err = h.create_dir(name, conf['snapshots_dir'])
     if err:
         fabric.utils.abort(err)
 
