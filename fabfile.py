@@ -1,3 +1,5 @@
+import os
+
 import fabric
 import helper_functions as h
 
@@ -28,7 +30,8 @@ def restore(snapshot = "latest"):
     mongo_conf = conf['mongo']
 
     command = "mongorestore -h {0} -d {1} {2}"
+    db_dir = os.path.join(snapshot, mongo_conf['db'])
     host = "{0}:{1}".format(mongo_conf['host'], mongo_conf['port'])
 
     with fabric.context_managers.lcd(conf['snapshots_dir']):
-        fabric.operations.local(command.format(host, mongo_conf['db'], snapshot))
+        fabric.operations.local(command.format(host, mongo_conf['db'], db_dir))
