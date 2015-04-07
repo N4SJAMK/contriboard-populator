@@ -4,4 +4,4 @@ mongo:
     port: 27017
     db: teamboard-dev
 snapshots_dir: snapshots
-api_url: http://localhost:9001/api
+api_url: http://localhost:9002/api

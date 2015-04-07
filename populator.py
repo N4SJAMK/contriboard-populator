@@ -1,8 +1,10 @@
-import requests
 import json
-import loremipsum
 import random
 import pprint
+
+import requests
+import loremipsum
+
 import helper_functions as h
 
 API_URL = "http://localhost:9002/api{0}"
@@ -82,8 +84,8 @@ def create_user(user):
     resource_url = API_URL.format("/auth/register")
 
     payload = json.dumps({'email': user['email'], 'password': user['password']})
-    user = requests.post(resource_url, data = payload, headers = JSON_HEADER)
-    return user.json()
+    new_user = requests.post(resource_url, data = payload, headers = JSON_HEADER)
+    return new_user.json()
 
 def login(user):
     resource_url = API_URL.format("/auth/login")
