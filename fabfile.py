@@ -1,6 +1,7 @@
 import os
 
 import fabric
+import populator
 import helper_functions as h
 
 CONF_FILE = "conf.yml"
@@ -35,3 +36,11 @@ def restore(snapshot = "latest"):
 
     with fabric.context_managers.lcd(conf['snapshots_dir']):
         fabric.operations.local(command.format(host, mongo_conf['db'], db_dir))
+
+def populate(filename = "populator_data.json"):
+    data = populator.get_data(filename)
+    populator.populate(data)
+
+def populate_random(users = 15, min_board = 1, max_board = 10, min_tickets = 5, max_tickets = 25):
+    data = populator.get_random_data(users, min_board, max_board, min_tickets, max_tickets)
+    populator.populate(data)
