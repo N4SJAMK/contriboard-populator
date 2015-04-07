@@ -38,8 +38,12 @@ def restore(snapshot = "latest"):
     with fabric.context_managers.lcd(conf['snapshots_dir']):
         fabric.operations.local(command.format(host, mongo_conf['db'], db_dir))
 
-def clear_db():
-    pass
+def clear_database():
+    conf = h.parse_config(CONF_FILE)
+    db = conf['mongo']['db']
+    host = conf['mongo']['host']
+    port = conf['mongo']['port']
+    h.drop_database(db, host, port)
 
 def populate(filename = "populator_data.json"):
     data = populator.get_data(filename)

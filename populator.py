@@ -106,7 +106,8 @@ def create_ticket(ticket, board_id, access_token):
     resource_url = API_URL.format(uri)
 
     payload = json.dumps({'content': ticket['content']})
-    requests.post(resource_url, data = payload, headers = headers)
+    new_ticket = requests.post(resource_url, data = payload, headers = headers)
+    return new_ticket.json()
 
 if __name__ == "__main__":
     data = get_data("populator_data.json")

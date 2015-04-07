@@ -3,6 +3,8 @@ import time
 import os
 import yaml
 
+import pymongo
+
 def create_dir(name, parent = "."):
     if not name:
         name = str(int(time.time()))
@@ -25,3 +27,7 @@ def set_symlink(link, target, parent_dir = "."):
 
 def list_dirs(parent):
     return filter(os.path.isdir, [os.path.join(parent, d) for d in os.listdir(parent)])
+
+def drop_database(database, host = "localhost", port = 27017):
+    connection = pymongo.Connection(host, port)
+    connection.drop_database(database)
