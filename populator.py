@@ -35,26 +35,47 @@ def get_random_data(users, min_boards, max_boards, min_tickets, max_tickets):
 
 def populate(data):
     read_conf()
+    message = {
+            'users':    {'created': 0},
+            'boards':   {'created': 0},
+            'tickets':  {'created': 0},
+        }
     for user in data:
         new_user = create_user(user)
 
-        if new_user.get('id'):
+        if not new_user.get('id'):
+            err = new_user.get('message') or "error"
+            message['users'][err] = message['users'].get(err, 0) + 1
+        else:
+            message['users']['created'] += 1
             access_token = login(user)
 
             for board in user['boards']:
                 new_board = create_board(board, access_token)
 
-                if new_board.get('id'):
+                if not new_board.get('id'):
+                    err = new_board.get('message') or "error"
+                    message['boards'][err] = message['boards'].get(err, 0) + 1
+                else:
+                    message['boards']['created'] += 1
+
                     for ticket in board['tickets']:
                         new_ticket = create_ticket(ticket, new_board['id'], access_token)
 
-def read_conf(filename = "conf.yml")
+                        if not new_ticket.get('id'):
+                            err = new_board.get('message') or "error"
+                            message['boards'][err] = message['boards'].get(err, 0) + 1
+                        else:
+                            message['tickets']['created'] += 1
+    return message
+
+def read_conf(filename = "conf.yml"):
     conf = h.parse_config("conf.yml")
-    if conf['api_url']:
+    if conf.get('api_url'):
         API_URL = conf['api_url'] + "{0}"
-    if conf['default_passwd']:
+    if conf.get('default_passwd'):
         DEFAULT_PASSWD = conf['default_passwd']
-    if conf['default_user']:
+    if conf.get('default_user'):
         DEFAULT_USER = conf['default_user']
 
 def create_user(user):
