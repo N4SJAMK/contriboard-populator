@@ -42,34 +42,82 @@ def populate(data):
             'boards':   {'created': 0},
             'tickets':  {'created': 0},
         }
-    for user in data:
-        new_user = create_user(user)
+    msg = map(create_user, data)
 
-        if not new_user.get('id'):
-            err = new_user.get('message') or "error"
-            message['users'][err] = message['users'].get(err, 0) + 1
-        else:
-            message['users']['created'] += 1
-            access_token = login(user)
+    for i in msg:
+        for k, v in i['tickets'].iteritems():
+            message['tickets'][k] = message['tickets'].get(k, 0) + v
+        for k, v in i['boards'].iteritems():
+            message['boards'][k] = message['boards'].get(k, 0) + v
+        for k, v in i['users'].iteritems():
+            message['users'][k] = message['users'].get(k, 0) + v
 
-            for board in user['boards']:
-                new_board = create_board(board, access_token)
-
-                if not new_board.get('id'):
-                    err = new_board.get('message') or "error"
-                    message['boards'][err] = message['boards'].get(err, 0) + 1
-                else:
-                    message['boards']['created'] += 1
-
-                    for ticket in board['tickets']:
-                        new_ticket = create_ticket(ticket, new_board['id'], access_token)
-
-                        if not new_ticket.get('id'):
-                            err = new_board.get('message') or "error"
-                            message['boards'][err] = message['boards'].get(err, 0) + 1
-                        else:
-                            message['tickets']['created'] += 1
     return message
+
+def create_user(user):
+    message = {
+            'users':    {'created': 0},
+            'boards':   {'created': 0},
+            'tickets':  {'created': 0},
+        }
+    new_user = request_create_user(user)
+
+    if not new_user.get('id'):
+        err = new_user.get('message') or "error"
+        message['users'][err] = message['users'].get(err, 0) + 1
+    else:
+        message['users']['created'] += 1
+        access_token = login(user)
+
+        msg = map(create_board(access_token), user['boards'])
+
+        for i in msg:
+            for k, v in i['tickets'].iteritems():
+                message['tickets'][k] = message['tickets'].get(k, 0) + v
+            for k, v in i['boards'].iteritems():
+                message['boards'][k] = message['boards'].get(k, 0) + v
+
+    return message
+
+def create_board(access_token):
+
+    def _create_board(board):
+        new_board = request_create_board(board, access_token)
+        message = {
+                'boards':  {'created': 0},
+                'tickets': {'created': 0},
+            }
+
+        if not new_board.get('id'):
+            err = new_board.get('message') or "error"
+            message['boards'][err] = message['boards'].get(err, 0) + 1
+        else:
+            message['boards']['created'] += 1
+
+            msg = map(create_ticket(new_board['id'], access_token), board['tickets'])
+            for i in msg:
+                for k, v in i['tickets'].iteritems():
+                    message['tickets'][k] = message['tickets'].get(k, 0) + v
+
+        return message
+
+    return _create_board
+
+def create_ticket(board_id, access_token):
+
+    def _create_ticket(ticket):
+        new_ticket = request_create_ticket(ticket, board_id, access_token)
+        message = {'tickets': {'created': 0}}
+
+        if not new_ticket.get('id'):
+            err = new_board.get('message') or "error"
+            message['boards'][err] = message['boards'].get(err, 0) + 1
+        else:
+            message['tickets']['created'] += 1
+
+        return message
+
+    return _create_ticket
 
 def read_conf(filename = "conf.yml"):
     conf = h.parse_config("conf.yml")
@@ -80,7 +128,7 @@ def read_conf(filename = "conf.yml"):
     if conf.get('default_user'):
         DEFAULT_USER = conf['default_user']
 
-def create_user(user):
+def request_create_user(user):
     resource_url = API_URL.format("/auth/register")
 
     payload = json.dumps({'email': user['email'], 'password': user['password']})
@@ -94,7 +142,7 @@ def login(user):
     response = requests.post(resource_url, data = payload, headers = JSON_HEADER)
     return "Bearer {0}".format(response.headers['x-access-token'])
 
-def create_board(board, access_token):
+def request_create_board(board, access_token):
     headers = {'Content-type': 'application/json', 'Authorization': access_token}
     resource_url = API_URL.format("/boards")
 
@@ -102,7 +150,7 @@ def create_board(board, access_token):
     new_board = requests.post(resource_url, data = payload, headers = headers)
     return new_board.json()
 
-def create_ticket(ticket, board_id, access_token):
+def request_create_ticket(ticket, board_id, access_token):
     headers = {'Content-type': 'application/json', 'Authorization': access_token}
     uri = "/boards/{0}/tickets".format(board_id)
     resource_url = API_URL.format(uri)
