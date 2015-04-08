@@ -44,15 +44,7 @@ def populate(data):
         }
     msg = map(create_user, data)
 
-    for i in msg:
-        for k, v in i['tickets'].iteritems():
-            message['tickets'][k] = message['tickets'].get(k, 0) + v
-        for k, v in i['boards'].iteritems():
-            message['boards'][k] = message['boards'].get(k, 0) + v
-        for k, v in i['users'].iteritems():
-            message['users'][k] = message['users'].get(k, 0) + v
-
-    return message
+    return stitch_message(message, msg)
 
 def create_user(user):
     message = {
@@ -70,12 +62,7 @@ def create_user(user):
         access_token = login(user)
 
         msg = map(create_board(access_token), user['boards'])
-
-        for i in msg:
-            for k, v in i['tickets'].iteritems():
-                message['tickets'][k] = message['tickets'].get(k, 0) + v
-            for k, v in i['boards'].iteritems():
-                message['boards'][k] = message['boards'].get(k, 0) + v
+        message = stitch_message(message, msg)
 
     return message
 
@@ -95,9 +82,7 @@ def create_board(access_token):
             message['boards']['created'] += 1
 
             msg = map(create_ticket(new_board['id'], access_token), board['tickets'])
-            for i in msg:
-                for k, v in i['tickets'].iteritems():
-                    message['tickets'][k] = message['tickets'].get(k, 0) + v
+            message = stitch_message(message, msg)
 
         return message
 
@@ -158,6 +143,14 @@ def request_create_ticket(ticket, board_id, access_token):
     payload = json.dumps({'content': ticket['content']})
     new_ticket = requests.post(resource_url, data = payload, headers = headers)
     return new_ticket.json()
+
+def stitch_message(message, msg):
+    for i in msg:
+        for key, _ in i.iteritems():
+            message[key] = message.get(key, {})
+            for k, v in i[key].iteritems():
+                message[key][k] = message[key].get(k, 0) + v
+    return message
 
 if __name__ == "__main__":
     data = get_data("populator_data.json")
