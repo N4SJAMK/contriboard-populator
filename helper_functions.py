@@ -32,8 +32,7 @@ def clear_database(database, host = "localhost", port = 27017):
     connection = pymongo.MongoClient(host, port)
     db = connection[database]
     # Dropping database is not an option because it messes up the indexing
-    # This way it somehow magically works
+    # Emptying the collections separately works
     for collection in db.collection_names():
         if not collection.startswith("system."):
             db[collection].delete_many({})
-            db[collection].reindex()
