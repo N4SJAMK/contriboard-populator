@@ -43,7 +43,7 @@ def clear_database():
     db = conf['mongo']['db']
     host = conf['mongo']['host']
     port = conf['mongo']['port']
-    h.drop_database(db, host, port)
+    h.clear_database(db, host, port)
 
 def populate(filename = "populator_data.json"):
     data = populator.get_data(filename)

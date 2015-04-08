@@ -28,6 +28,12 @@ def set_symlink(link, target, parent_dir = "."):
 def list_dirs(parent):
     return filter(os.path.isdir, [os.path.join(parent, d) for d in os.listdir(parent)])
 
-def drop_database(database, host = "localhost", port = 27017):
-    connection = pymongo.Connection(host, port)
-    connection.drop_database(database)
+def clear_database(database, host = "localhost", port = 27017):
+    connection = pymongo.MongoClient(host, port)
+    db = connection[database]
+    # Dropping database is not an option because it messes up the indexing
+    # This way it somehow magically works
+    for collection in db.collection_names():
+        if not collection.startswith("system."):
+            db[collection].delete_many({})
+            db[collection].reindex()
