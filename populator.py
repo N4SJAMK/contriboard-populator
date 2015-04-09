@@ -105,6 +105,11 @@ def create_ticket(board_id, access_token):
     return _create_ticket
 
 def read_conf(filename = "conf.yml"):
+
+    global API_URL
+    global DEFAULT_PASSWD
+    global DEFAULT_USER
+
     conf = h.parse_config("conf.yml")
     if conf.get('api_url'):
         API_URL = conf['api_url'] + "{0}"
