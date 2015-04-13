@@ -1,0 +1,30 @@
+[
+{
+	"email": "test@test.com",
+	"password": "testtest",
+	"boards": [
+	{
+		"name": "Test1",
+		"tickets": [
+		{
+			"content": "Test"
+		},
+		{
+			"content": "Test2"
+		}
+		]
+	},
+	{
+		"name": "Test2",
+		"tickets": [
+		{
+			"content": "Testtt"
+		},
+		{
+			"content": "Test2"
+		}
+		]
+	}
+	]
+}
+]

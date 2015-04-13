@@ -1,0 +1,7 @@
+---
+mongo:
+    host: 127.0.0.1
+    port: 27017
+    db: teamboard-dev
+snapshots_dir: snapshots
+api_url: http://localhost:9002/api
